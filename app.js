@@ -118,7 +118,7 @@ app.post('/add-user',(req,res) => {
                 console.log(error)
                 req.session.destroy()
                 res.redirect('/')
-            });            
+            });
         }
     })
     .catch((error) => {
@@ -188,13 +188,36 @@ app.post('/delete-post',authenticate,(req,res) => {
     })
 })
 
+
+app.get('/home', (req,res) => {
+  let users = []
+  db.any('SELECT u.user_id, u.name, p.post_id, p.title FROM users u JOIN posts p ON u.user_id = p.user_id;')
+  .then(results => {
+    results.sort(function (a, b) {
+      return a.user_id - b.user_id;
+    })
+    results.map(record => {
+        let user = {userId: record.user_id, username: record.name}
+        let post = {title: record.title, post_id: record.post_id}
+        user.posts = post
+        users.push(user)
+    })
+    res.render('home', {users: users})
+  })
+})
+
 // view post detail
-app.get('/post-detail',(req,res) => {
+
+app.post('/post-detail/:postId',(req,res) => {
+  req.params.postId
+    let detail_post_id = req.body.postId
+
     if (!req.session.detail_post_id) {
         res.redirect('/')
     }
 
     let detail_post_id = req.session.detail_post_id
+
 
     // get the post and any assoc. comments from the database
     //detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
@@ -255,6 +278,7 @@ app.post('/delete-comment', authenticate, (req,res) => {
         console.log(error)
         res.redirect('/post-detail')
     })
+
 })
 
 app.listen(3000, () => {

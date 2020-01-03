@@ -1,0 +1,26 @@
+
+<html>
+<head></head>
+
+<body>
+
+<ul>
+  {{#users}}
+  <li>
+    {{username}}
+    {{#posts}}
+    <br>
+    <b>{{title}}</b>
+    <p>comments: </p>
+    <form method="post" action="/post-detail/:postId">
+      <input type="hidden" name="postId" value="{{post_id}}">
+      <input type="submit" name="submit" value="Details">
+    </form>
+    {{/posts}}
+  </li>
+  {{/users}}
+</ul>
+
+</body>
+
+</html>
