@@ -187,18 +187,23 @@ app.post('/delete-post',authenticate,(req,res) => {
 })
 
 // view post detail
-app.get('/post-detail',(req,res) => {
-    the_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
+app.post('/post-detail',(req,res) => {
+    let detail_post_id = req.body.post_id
+
+    // get the post and any assoc. comments from the database
+    detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
+    comments = [{user: 1, title: 'Comment1', body: 'blah blah'}, {user: 2, title: 'Comment2', body: 'more blah blah'}]
+
     if(req.session) {
         if (req.session.isAuthenticated) {
-            res.render('post_detail',{username: [req.session.username], post: the_post})
+            res.render('post_detail',{username: [req.session.username], post: detail_post, comments: comments})
         }
         else {
-            res.render('post_detail',{username: [], post: the_post})
+            res.render('post_detail',{username: [], post: detail_post, comments:comments})
         }
     }
     else {
-        res.render('post_detail',{username: [], post: the_post})
+        res.render('post_detail',{username: [], post: detail_post, comments: comments})
     }
     
 })
