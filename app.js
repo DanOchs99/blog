@@ -187,25 +187,72 @@ app.post('/delete-post',authenticate,(req,res) => {
 })
 
 // view post detail
-app.post('/post-detail',(req,res) => {
-    let detail_post_id = req.body.post_id
+app.get('/post-detail',(req,res) => {
+    if (!req.session.detail_post_id) {
+        res.redirect('/')
+    }
+
+    let detail_post_id = req.session.detail_post_id
 
     // get the post and any assoc. comments from the database
-    detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
-    comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
+    //detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
+    //comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
+    db.any('SELECT p.post_id, p.title, p.body, p.user_id, u.name FROM posts p JOIN users u ON p.user_id=u.user_id WHERE p.post_id = $1',[detail_post_id])
+    .then((results) => {
+        detail_post = {username: results[0].name, title: results[0].title, body: results[0].body}
+        db.any('SELECT c.comment_id, c.body, c.user_id, u.name FROM comments c JOIN users u ON c.user_id=u.user_id WHERE c.post_id = $1 ORDER BY c.comment_id',[detail_post_id])
+        .then((results) => {
+          for (let i=0; i<results.length; i++) {
+              if (results[i].user_id == req.session.user_id) {
+                  results[i].owned = ''
+              }
+              else {
+                  results[i].owned = 'disabled'
+              }
+          }
+          if (req.session.isAuthenticated) {
+              res.render('post_detail',{username: [req.session.username], post: detail_post, comments: results})
+          }
+          else {
+              res.render('post_detail',{username: [], post: detail_post, comments: results})
+          }
+        })
+        .catch((error) => {
+            console.log(error)
+            req.session.destroy()
+            res.redirect('/')
+        })
+    })
+    .catch((error) => {
+        // something went really wrong if I can't get the post - go back to login
+        console.log(error)
+        req.session.destroy()
+        res.redirect('/')
+    })
+})
 
-    if(req.session) {
-        if (req.session.isAuthenticated) {
-            res.render('post_detail',{username: [req.session.username], post: detail_post, comments: comments})
-        }
-        else {
-            res.render('post_detail',{username: [], post: detail_post, comments:comments})
-        }
-    }
-    else {
-        res.render('post_detail',{username: [], post: detail_post, comments: comments})
-    }
-    
+app.post('/post-detail', (req,res) => {
+    req.session.detail_post_id = req.body.post_id
+    res.redirect('/post-detail')
+})
+
+app.post('/add-comment', authenticate, (req,res) => {
+    // create a new comment
+    db.none('INSERT INTO comments(body,user_id,post_id) VALUES($1,$2,$3)',[req.body.body, req.session.user_id, req.session.detail_post_id])
+    .then(() => res.redirect('/post-detail'))
+    .catch((error) => {
+        console.log(error)
+        res.redirect('/post-detail')
+    })
+})
+
+app.post('/delete-comment', authenticate, (req,res) => {
+    db.none('DELETE FROM comments WHERE comment_id=$1',[req.body.del_comment])
+    .then(() => res.redirect('/post-detail'))
+    .catch((error) => {
+        console.log(error)
+        res.redirect('/post-detail')
+    })
 })
 
 app.listen(3000, () => {
