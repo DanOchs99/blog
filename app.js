@@ -208,9 +208,8 @@ app.get('/home', (req,res) => {
 
 // view post detail
 
-app.post('/post-detail/:postId',(req,res) => {
-  req.params.postId
-    let detail_post_id = req.body.postId
+app.get('/post-detail',(req,res) => {
+    
 
     if (!req.session.detail_post_id) {
         res.redirect('/')
@@ -257,7 +256,7 @@ app.post('/post-detail/:postId',(req,res) => {
 })
 
 app.post('/post-detail', (req,res) => {
-    req.session.detail_post_id = req.body.post_id
+    req.session.detail_post_id = req.body.postId
     res.redirect('/post-detail')
 })
 
