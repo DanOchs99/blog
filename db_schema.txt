@@ -1,0 +1,15 @@
+CREATE TABLE users (
+user_id SERIAL PRIMARY KEY,
+name character varying(100),
+password character varying(100)
+);
+CREATE UNIQUE INDEX users_pkey ON users(user_id int4_ops);
+
+
+CREATE TABLE posts (
+post_id SERIAL PRIMARY KEY,
+title character varying(100),
+body text,
+user_id integer REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE UNIQUE INDEX posts_pkey ON posts(post_id int4_ops);
