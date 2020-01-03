@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="site.css"/>
+</head>
+
+<body>
+<h1>Blog App</h1>
+<form method = 'GET' action = '/logout'>
+    <button class="buttons">Logout {{username}}</button>
+</form>
+<h3>Add or update an entry</h3>
+<form method = 'POST' action='/posts'>
+  <input type="text" class="titleBox" placeholder="title" name="title">
+  <button  class="buttons">Submit</button>
+  <textarea rows="5" cols="50" name="body" placeholder="body"></textarea>
+</form>
+<h3>{{username}}'s Entries</h3>
+<ul>
+{{#posts}}
+<form method='POST' action = '/delete-post'>
+  <h4>{{title}}</h4>
+  <p>{{body}}</p>
+  <input type="hidden" value={{post_id}} name="del_post">
+  <button class="buttons">Remove</button>
+</form>
+{{/posts}}
+{{^posts}}
+<li><h4>No posts found</h4></li>
+{{/posts}}
+</ul>
+
+
+</body>
+</html>
