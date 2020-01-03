@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const postDetailRouter = require('./routes/post_detail')
 
 // connect to database blogdb on localhost
 const pgp = require('pg-promise')();
@@ -16,8 +15,6 @@ app.set('view engine','mustache');
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
-
-app.use('/post_detail', postDetailRouter)
 
 const session = require('express-session');
 app.use(session({
@@ -199,7 +196,7 @@ app.get('/home', (req,res) => {
     })
     results.map(record => {
         let user = {userId: record.user_id, username: record.name}
-        let post = {title: record.title, postId: record.post_id}
+        let post = {title: record.title, post_id: record.post_id}
         user.posts = post
         users.push(user)
     })
@@ -207,13 +204,10 @@ app.get('/home', (req,res) => {
   })
 })
 
-app.post('/post_detail/:postId', (req,res) => {
-  req.params.postId
-  res.render('post_detail')
-})
 // view post detail
-app.post('/post-detail',(req,res) => {
-    let detail_post_id = req.body.post_id
+app.post('/post-detail/:postId',(req,res) => {
+  req.params.postId
+    let detail_post_id = req.body.postId
 
     // get the post and any assoc. comments from the database
     detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
@@ -221,14 +215,26 @@ app.post('/post-detail',(req,res) => {
 
     if(req.session) {
         if (req.session.isAuthenticated) {
-            res.render('post_detail',{username: [req.session.username], post: detail_post, comments: comments})
+          db.any('SELECT p.post_id, p.title, p.body, u.user_id, u.name FROM users u JOIN posts p ON p.user_id = u.user_id WHERE post_id = $1',[detail_post_id])
+          .then(results => {
+            console.log(results)
+            res.render('post_detail', {results: results[0], username: results.name})
+          })
         }
         else {
-            res.render('post_detail',{username: [], post: detail_post, comments:comments})
+          db.any('SELECT p.post_id, p.title, p.body, u.user_id, u.name FROM users u JOIN posts p ON p.user_id = u.user_id WHERE post_id = $1',[detail_post_id])
+          .then(results => {
+            console.log(results)
+            res.render('post_detail', {results: results[0], username: []})
+          })
         }
     }
     else {
-        res.render('post_detail',{username: [], post: detail_post, comments: comments})
+      db.any('SELECT p.post_id, p.title, p.body, u.user_id, u.name FROM users u JOIN posts p ON p.user_id = u.user_id WHERE post_id = $1',[detail_post_id])
+      .then(results => {
+        console.log(results)
+        res.render('post_detail', {results: results[0], username: []})
+      })
     }
 
 })

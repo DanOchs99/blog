@@ -11,9 +11,10 @@
     {{#posts}}
     <br>
     <b>{{title}}</b>
-    <form method="post" action="/post_detail/:postId">
+    <p>comments: </p>
+    <form method="post" action="/post-detail/:postId">
       <input type="hidden" name="postId" value="{{post_id}}">
-      <input type="button" name="button" value="Details">
+      <input type="submit" name="submit" value="Details">
     </form>
     {{/posts}}
   </li>

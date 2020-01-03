@@ -15,15 +15,17 @@
 {{^username}}
 <p>Not logged in</p>
 {{/username}}
+{{#results}}
 <h3>Add a comment</h3>
 <form method = 'POST' action='/comments'>
-  <input type="text" class="titleBox" placeholder="title" name="title">
+  <input type="hidden" class="titleBox" placeholder="title" name="{{title}}">
   <button  class="buttons">Submit</button>
   <textarea rows="5" cols="50" name="body" placeholder="body"></textarea>
 </form>
-<h4>{{post.title}}</h4>
-<h4>User: {{post.username}}</h4>
-<p>{{post.body}}</p>
+<h4>{{title}}</h4>
+<h4>User: {{name}}</h4>
+<p>{{body}}</p>
+{{/results}}
 {{#comments}}
 <form method='POST' action = '/delete-comment'>
   <h4>{{title}}</h4>
