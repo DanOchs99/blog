@@ -197,9 +197,9 @@ app.get('/post-detail',(req,res) => {
     // get the post and any assoc. comments from the database
     //detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
     //comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
-    db.any('SELECT p.post_id, p.title, p.body, p.user_id, u.name FROM posts p JOIN users u ON p.user_id=u.user_id WHERE p.post_id = $1',[detail_post_id])
+    db.any('SELECT p.post_id, p.title, p.body, p.user_id, p.created_on, u.name FROM posts p JOIN users u ON p.user_id=u.user_id WHERE p.post_id = $1',[detail_post_id])
     .then((results) => {
-        detail_post = {username: results[0].name, title: results[0].title, body: results[0].body}
+        detail_post = {username: results[0].name, title: results[0].title, body: results[0].body, created_on: results[0].created_on}
         db.any('SELECT c.comment_id, c.body, c.user_id, u.name FROM comments c JOIN users u ON c.user_id=u.user_id WHERE c.post_id = $1 ORDER BY c.comment_id',[detail_post_id])
         .then((results) => {
           for (let i=0; i<results.length; i++) {

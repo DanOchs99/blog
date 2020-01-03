@@ -21,11 +21,12 @@
 <p>Not logged in</p>
 {{/username}}
 <h4>{{post.title}}</h4>
-<h4>User: {{post.username}}</h4>
+<h5>User: {{post.username}}</h5>
+<h5>Created: {{post.created_on}}</h5>
 <p>{{post.body}}</p>
 {{#comments}}
 <form method='POST' action = '/delete-comment'>
-  <h4>User: {{name}}</h4>
+  <h5>User: {{name}}</h5>
   <p>{{body}}</p>
   <input type="hidden" value={{comment_id}} name="del_comment">
   <button class="buttons" {{owned}}>Remove</button>
