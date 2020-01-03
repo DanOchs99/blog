@@ -152,7 +152,7 @@ app.post('/posts',authenticate,(req,res) => {
         let checkTitle = results.filter(item => item.title==req.body.title)
         if (checkTitle.length > 0) {
             // update an existing post
-            db.none('UPDATE posts SET body=$1 WHERE post_id=$2',[req.body.body, checkTitle[0].post_id])
+            db.none('UPDATE posts SET body=$1,created_on=$2 WHERE post_id=$3',[req.body.body, new Date(), checkTitle[0].post_id])
             .then(() => res.redirect('/posts'))
             .catch((error) => {
                 console.log(error)
@@ -162,7 +162,7 @@ app.post('/posts',authenticate,(req,res) => {
         else
         {
             // create a new post
-            db.none('INSERT INTO posts(title,body,user_id) VALUES($1,$2,$3)',[req.body.title, req.body.body, req.session.user_id])
+            db.none('INSERT INTO posts(title,body,user_id,created_on) VALUES($1,$2,$3,$4)',[req.body.title, req.body.body, req.session.user_id, new Date()])
             .then(() => res.redirect('/posts'))
             .catch((error) => {
                 console.log(error)
