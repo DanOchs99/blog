@@ -1,0 +1,25 @@
+
+<html>
+<head></head>
+
+<body>
+
+<ul>
+  {{#users}}
+  <li>
+    {{username}}
+    {{#posts}}
+    <br>
+    <b>{{title}}</b>
+    <form method="post" action="/post_detail/:postId">
+      <input type="hidden" name="postId" value="{{post_id}}">
+      <input type="button" name="button" value="Details">
+    </form>
+    {{/posts}}
+  </li>
+  {{/users}}
+</ul>
+
+</body>
+
+</html>

@@ -1,9 +1,10 @@
 const express = require('express')
 const app = express()
+const postDetailRouter = require('./routes/post_detail')
 
 // connect to database blogdb on localhost
 const pgp = require('pg-promise')();
-const connectionString = 'postgres://localhost:5432/blogdb'
+const connectionString = 'postgres://scbqllmn:0SvgJFJ0tXXXFSA0WmidUHFF6oznvniR@rajje.db.elephantsql.com:5432/scbqllmn'
 const db = pgp(connectionString)
 
 // setup mustache
@@ -15,6 +16,8 @@ app.set('view engine','mustache');
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
+
+app.use('/post_detail', postDetailRouter)
 
 const session = require('express-session');
 app.use(session({
@@ -116,7 +119,7 @@ app.post('/add-user',(req,res) => {
                 console.log(error)
                 req.session.destroy()
                 res.redirect('/')
-            });            
+            });
         }
     })
     .catch((error) => {
@@ -184,6 +187,28 @@ app.post('/delete-post',authenticate,(req,res) => {
         console.log(error)
         res.redirect('/posts')
     })
+})
+
+app.get('/home', (req,res) => {
+  let users = []
+  db.any('SELECT u.user_id, u.name, p.post_id, p.title FROM users u JOIN posts p ON u.user_id = p.user_id;')
+  .then(results => {
+    results.sort(function (a, b) {
+      return a.user_id - b.user_id;
+    })
+    results.map(record => {
+        let user = {userId: record.user_id, username: record.name}
+        let post = {title: record.title, postId: record.post_id}
+        user.posts = post
+        users.push(user)
+    })
+    res.render('home', {users: users})
+  })
+})
+
+app.post('/post_detail/:postId', (req,res) => {
+  req.params.postId
+  res.render('post_detail')
 })
 
 app.listen(3000, () => {
