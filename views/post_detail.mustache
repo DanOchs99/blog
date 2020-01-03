@@ -25,12 +25,16 @@
 <h4>User: {{post.username}}</h4>
 <p>{{post.body}}</p>
 {{#comments}}
-  {{title}}
-  {{user}}
-  {{body}}
+<form method='POST' action = '/delete-comment'>
+  <h4>{{title}}</h4>
+  <h4>User: {{username}}</h4>
+  <p>{{body}}</p>
+  <input type="hidden" value={{comment_id}} name="del_comment">
+  <button class="buttons" {{owned}}>Remove</button>
+</form>
 {{/comments}}
 {{^comments}}
-<p>No comments yet</p>
+<p>No comments yet.</p>
 {{/comments}}
 </body>
 </html>

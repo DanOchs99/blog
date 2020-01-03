@@ -192,7 +192,7 @@ app.post('/post-detail',(req,res) => {
 
     // get the post and any assoc. comments from the database
     detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
-    comments = [{user: 1, title: 'Comment1', body: 'blah blah'}, {user: 2, title: 'Comment2', body: 'more blah blah'}]
+    comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
 
     if(req.session) {
         if (req.session.isAuthenticated) {
