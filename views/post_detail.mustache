@@ -11,6 +11,19 @@
 <form method = 'GET' action = '/logout'>
     <button class="buttons">Logout {{username}}</button>
 </form>
+<h3>Add a comment</h3>
+<form method = 'POST' action='/add-comment'>
+  <button  class="buttons">Submit</button>
+  <textarea rows="5" cols="50" name="body" placeholder="body"></textarea>
+</form>
+{{/username}}
+{{^username}}
+<p>Not logged in</p>
+{{/username}}
+<h4>{{post.title}}</h4>
+<h5>User: {{post.username}}</h5>
+<h5>Created: {{post.created_on}}</h5>
+<p>{{post.body}}</p>
 {{/username}}
 {{^username}}
 <p>Not logged in</p>
@@ -28,8 +41,7 @@
 {{/results}}
 {{#comments}}
 <form method='POST' action = '/delete-comment'>
-  <h4>{{title}}</h4>
-  <h4>User: {{username}}</h4>
+  <h5>User: {{name}}</h5>
   <p>{{body}}</p>
   <input type="hidden" value={{comment_id}} name="del_comment">
   <button class="buttons" {{owned}}>Remove</button>

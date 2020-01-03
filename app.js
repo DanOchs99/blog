@@ -152,7 +152,7 @@ app.post('/posts',authenticate,(req,res) => {
         let checkTitle = results.filter(item => item.title==req.body.title)
         if (checkTitle.length > 0) {
             // update an existing post
-            db.none('UPDATE posts SET body=$1 WHERE post_id=$2',[req.body.body, checkTitle[0].post_id])
+            db.none('UPDATE posts SET body=$1,created_on=$2 WHERE post_id=$3',[req.body.body, new Date(), checkTitle[0].post_id])
             .then(() => res.redirect('/posts'))
             .catch((error) => {
                 console.log(error)
@@ -162,7 +162,7 @@ app.post('/posts',authenticate,(req,res) => {
         else
         {
             // create a new post
-            db.none('INSERT INTO posts(title,body,user_id) VALUES($1,$2,$3)',[req.body.title, req.body.body, req.session.user_id])
+            db.none('INSERT INTO posts(title,body,user_id,created_on) VALUES($1,$2,$3,$4)',[req.body.title, req.body.body, req.session.user_id, new Date()])
             .then(() => res.redirect('/posts'))
             .catch((error) => {
                 console.log(error)
@@ -205,37 +205,77 @@ app.get('/home', (req,res) => {
 })
 
 // view post detail
+
 app.post('/post-detail/:postId',(req,res) => {
   req.params.postId
     let detail_post_id = req.body.postId
 
-    // get the post and any assoc. comments from the database
-    detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
-    comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
+    if (!req.session.detail_post_id) {
+        res.redirect('/')
+    }
 
-    if(req.session) {
-        if (req.session.isAuthenticated) {
-          db.any('SELECT p.post_id, p.title, p.body, u.user_id, u.name FROM users u JOIN posts p ON p.user_id = u.user_id WHERE post_id = $1',[detail_post_id])
-          .then(results => {
-            console.log(results)
-            res.render('post_detail', {results: results[0], username: results.name})
-          })
-        }
-        else {
-          db.any('SELECT p.post_id, p.title, p.body, u.user_id, u.name FROM users u JOIN posts p ON p.user_id = u.user_id WHERE post_id = $1',[detail_post_id])
-          .then(results => {
-            console.log(results)
-            res.render('post_detail', {results: results[0], username: []})
-          })
-        }
-    }
-    else {
-      db.any('SELECT p.post_id, p.title, p.body, u.user_id, u.name FROM users u JOIN posts p ON p.user_id = u.user_id WHERE post_id = $1',[detail_post_id])
-      .then(results => {
-        console.log(results)
-        res.render('post_detail', {results: results[0], username: []})
-      })
-    }
+    let detail_post_id = req.session.detail_post_id
+
+
+    // get the post and any assoc. comments from the database
+    //detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
+    //comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
+    db.any('SELECT p.post_id, p.title, p.body, p.user_id, p.created_on, u.name FROM posts p JOIN users u ON p.user_id=u.user_id WHERE p.post_id = $1',[detail_post_id])
+    .then((results) => {
+        detail_post = {username: results[0].name, title: results[0].title, body: results[0].body, created_on: results[0].created_on}
+        db.any('SELECT c.comment_id, c.body, c.user_id, u.name FROM comments c JOIN users u ON c.user_id=u.user_id WHERE c.post_id = $1 ORDER BY c.comment_id',[detail_post_id])
+        .then((results) => {
+          for (let i=0; i<results.length; i++) {
+              if (results[i].user_id == req.session.user_id) {
+                  results[i].owned = ''
+              }
+              else {
+                  results[i].owned = 'disabled'
+              }
+          }
+          if (req.session.isAuthenticated) {
+              res.render('post_detail',{username: [req.session.username], post: detail_post, comments: results})
+          }
+          else {
+              res.render('post_detail',{username: [], post: detail_post, comments: results})
+          }
+        })
+        .catch((error) => {
+            console.log(error)
+            req.session.destroy()
+            res.redirect('/')
+        })
+    })
+    .catch((error) => {
+        // something went really wrong if I can't get the post - go back to login
+        console.log(error)
+        req.session.destroy()
+        res.redirect('/')
+    })
+})
+
+app.post('/post-detail', (req,res) => {
+    req.session.detail_post_id = req.body.post_id
+    res.redirect('/post-detail')
+})
+
+app.post('/add-comment', authenticate, (req,res) => {
+    // create a new comment
+    db.none('INSERT INTO comments(body,user_id,post_id) VALUES($1,$2,$3)',[req.body.body, req.session.user_id, req.session.detail_post_id])
+    .then(() => res.redirect('/post-detail'))
+    .catch((error) => {
+        console.log(error)
+        res.redirect('/post-detail')
+    })
+})
+
+app.post('/delete-comment', authenticate, (req,res) => {
+    db.none('DELETE FROM comments WHERE comment_id=$1',[req.body.del_comment])
+    .then(() => res.redirect('/post-detail'))
+    .catch((error) => {
+        console.log(error)
+        res.redirect('/post-detail')
+    })
 
 })
 
