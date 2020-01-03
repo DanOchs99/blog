@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="site.css"/>
+</head>
+
+<body>
+<h1>Blog App</h1>
+{{#username}}
+<form method = 'GET' action = '/logout'>
+    <button class="buttons">Logout {{username}}</button>
+</form>
+{{/username}}
+{{^username}}
+<p>Not logged in</p>
+{{/username}}
+<h3>Add a comment</h3>
+<form method = 'POST' action='/comments'>
+  <input type="text" class="titleBox" placeholder="title" name="title">
+  <button  class="buttons">Submit</button>
+  <textarea rows="5" cols="50" name="body" placeholder="body"></textarea>
+</form>
+<h4>{{post.title}}</h4>
+<h4>User: {{post.username}}</h4>
+<p>{{post.body}}</p>
+</body>
+</html>

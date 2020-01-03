@@ -186,6 +186,23 @@ app.post('/delete-post',authenticate,(req,res) => {
     })
 })
 
+// view post detail
+app.get('/post-detail',(req,res) => {
+    the_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
+    if(req.session) {
+        if (req.session.isAuthenticated) {
+            res.render('post_detail',{username: [req.session.username], post: the_post})
+        }
+        else {
+            res.render('post_detail',{username: [], post: the_post})
+        }
+    }
+    else {
+        res.render('post_detail',{username: [], post: the_post})
+    }
+    
+})
+
 app.listen(3000, () => {
     console.log("Server is running on localhost:3000")
 })
