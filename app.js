@@ -1,10 +1,12 @@
 const express = require('express')
 const app = express()
 
+const dotenv = require('dotenv')
+dotenv.config()
+
 // connect to database blogdb on localhost
 const pgp = require('pg-promise')();
-const connectionString = 'postgres://scbqllmn:0SvgJFJ0tXXXFSA0WmidUHFF6oznvniR@rajje.db.elephantsql.com:5432/scbqllmn'
-const db = pgp(connectionString)
+const db = pgp(process.env.CONNECT_URL)
 
 // setup mustache
 const mustacheExpress = require('mustache-express');
