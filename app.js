@@ -189,6 +189,7 @@ app.post('/delete-post',authenticate,(req,res) => {
     })
 })
 
+
 app.get('/home', (req,res) => {
   let users = []
   db.any('SELECT u.user_id, u.name, p.post_id, p.title FROM users u JOIN posts p ON u.user_id = p.user_id;')
@@ -209,6 +210,27 @@ app.get('/home', (req,res) => {
 app.post('/post_detail/:postId', (req,res) => {
   req.params.postId
   res.render('post_detail')
+})
+// view post detail
+app.post('/post-detail',(req,res) => {
+    let detail_post_id = req.body.post_id
+
+    // get the post and any assoc. comments from the database
+    detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
+    comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
+
+    if(req.session) {
+        if (req.session.isAuthenticated) {
+            res.render('post_detail',{username: [req.session.username], post: detail_post, comments: comments})
+        }
+        else {
+            res.render('post_detail',{username: [], post: detail_post, comments:comments})
+        }
+    }
+    else {
+        res.render('post_detail',{username: [], post: detail_post, comments: comments})
+    }
+
 })
 
 app.listen(3000, () => {

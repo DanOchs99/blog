@@ -10,6 +10,13 @@
 <form method = 'GET' action = '/logout'>
     <button class="buttons">Logout {{username}}</button>
 </form>
+
+<!-- BUTTON FOR TESTING the post-detail page... -->
+<form method = 'POST' action = '/post-detail'>
+    <input type="hidden" value = 2 name = "post_id">
+    <button class="buttons">TEST POST DETAIL - post_id = 2</button>
+</form>
+
 <h3>Add or update an entry</h3>
 <form method = 'POST' action='/posts'>
   <input type="text" class="titleBox" placeholder="title" name="title">
