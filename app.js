@@ -3,7 +3,7 @@ const app = express()
 
 // connect to database blogdb on localhost
 const pgp = require('pg-promise')();
-const connectionString = 'postgres://localhost:5432/blogdb'
+const connectionString = 'postgres://scbqllmn:0SvgJFJ0tXXXFSA0WmidUHFF6oznvniR@rajje.db.elephantsql.com:5432/scbqllmn'
 const db = pgp(connectionString)
 
 // setup mustache
