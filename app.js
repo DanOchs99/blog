@@ -188,40 +188,13 @@ app.post('/delete-post',authenticate,(req,res) => {
     })
 })
 
-
-app.get('/home', (req,res) => {
-  let users = []
-  db.any('SELECT u.user_id, u.name, p.post_id, p.title FROM users u JOIN posts p ON u.user_id = p.user_id;')
-  .then(results => {
-    results.sort(function (a, b) {
-      return a.user_id - b.user_id;
-    })
-    results.map(record => {
-        let user = {userId: record.user_id, username: record.name}
-        let post = {title: record.title, post_id: record.post_id}
-        user.posts = post
-        users.push(user)
-    })
-    res.render('home', {users: users})
-  })
-})
-
 // view post detail
-
 app.post('/post-detail/:postId',(req,res) => {
-  req.params.postId
+  console.log(req.param.postId)
+  req.param.postId
+
     let detail_post_id = req.body.postId
 
-    if (!req.session.detail_post_id) {
-        res.redirect('/')
-    }
-
-    let detail_post_id = req.session.detail_post_id
-
-
-    // get the post and any assoc. comments from the database
-    //detail_post = {username: 'Stud', title: 'A post', body: 'the body goes here...'}
-    //comments = [{comment_id: 1, username: 'a', title: 'Comment1', body: 'blah blah', owned: ''}, {comment_id: 2, username: 'b', title: 'Comment2', body: 'more blah blah', owned: 'disabled'}]
     db.any('SELECT p.post_id, p.title, p.body, p.user_id, p.created_on, u.name FROM posts p JOIN users u ON p.user_id=u.user_id WHERE p.post_id = $1',[detail_post_id])
     .then((results) => {
         detail_post = {username: results[0].name, title: results[0].title, body: results[0].body, created_on: results[0].created_on}
@@ -256,9 +229,21 @@ app.post('/post-detail/:postId',(req,res) => {
     })
 })
 
-app.post('/post-detail', (req,res) => {
-    req.session.detail_post_id = req.body.post_id
-    res.redirect('/post-detail')
+app.get('/home', (req,res) => {
+  let users = []
+  db.any('SELECT u.user_id, u.name, p.post_id, p.title FROM users u JOIN posts p ON u.user_id = p.user_id;')
+  .then(results => {
+    results.sort(function (a, b) {
+      return a.user_id - b.user_id;
+    })
+    results.map(record => {
+        let user = {userId: record.user_id, username: record.name}
+        let post = {title: record.title, post_id: record.post_id}
+        user.posts = post
+        users.push(user)
+    })
+    res.render('home', {users: users})
+  })
 })
 
 app.post('/add-comment', authenticate, (req,res) => {
@@ -278,7 +263,6 @@ app.post('/delete-comment', authenticate, (req,res) => {
         console.log(error)
         res.redirect('/post-detail')
     })
-
 })
 
 app.listen(3000, () => {
