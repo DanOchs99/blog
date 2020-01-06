@@ -189,11 +189,15 @@ app.post('/delete-post',authenticate,(req,res) => {
 })
 
 // view post detail
-app.post('/post-detail/:postId',(req,res) => {
-  console.log(req.param.postId)
-  req.param.postId
 
-    let detail_post_id = req.body.postId
+app.get('/post-detail',(req,res) => {
+
+
+    if (!req.session.detail_post_id) {
+        res.redirect('/')
+    }
+
+    let detail_post_id = req.session.detail_post_id
 
     db.any('SELECT p.post_id, p.title, p.body, p.user_id, p.created_on, u.name FROM posts p JOIN users u ON p.user_id=u.user_id WHERE p.post_id = $1',[detail_post_id])
     .then((results) => {
@@ -227,6 +231,11 @@ app.post('/post-detail/:postId',(req,res) => {
         req.session.destroy()
         res.redirect('/')
     })
+})
+
+app.post('/post-detail', (req,res) => {
+    req.session.detail_post_id = req.body.postId
+    res.redirect('/post-detail')
 })
 
 app.get('/home', (req,res) => {

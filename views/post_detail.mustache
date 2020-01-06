@@ -24,10 +24,6 @@
 <h5>User: {{post.username}}</h5>
 <h5>Created: {{post.created_on}}</h5>
 <p>{{post.body}}</p>
-{{/username}}
-{{^username}}
-<p>Not logged in</p>
-{{/username}}
 {{#results}}
 <h3>Add a comment</h3>
 <form method = 'POST' action='/comments'>
